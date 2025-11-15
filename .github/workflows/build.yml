@@ -49,14 +49,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p hx/.cargo
-          cp -f .cargo/config.toml hx/.cargo/
-
-      - name: Cargo update
-        shell: bash
-        run: |
-          cd hx
-          rm -f Cargo.lock
-          cargo update
+          cp -f .cargo/config.toml hx/.cargo
 
       - name: Build
         run: |
