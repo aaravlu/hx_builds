@@ -6,6 +6,11 @@ on:
 
 jobs:
   build:
+    env:
+      PROJECT_REPOSITORY: helix-editor/helix
+      PROJECT_VERSION: v2.3.2
+      PROJECT_PATH: helix
+      PROJECT_BIN: hx
     strategy:
       matrix:
         os: [ubuntu-24.04, windows-2022]
@@ -13,7 +18,8 @@ jobs:
 
     steps:
       - name: Windows Config
-        if: matrix.os == 'windows-2022'
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           git config --system core.longpaths true
           echo "Enabled long paths in git"
@@ -28,7 +34,7 @@ jobs:
           echo "Removed link.exe in git"
 
       - name: Setup MSVC
-        if: matrix.os == 'windows-2022'
+        if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
         with:
           toolset: 14.29
@@ -36,35 +42,39 @@ jobs:
           sdk: 10.0.19041.0
 
       - name: Checkout self
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Checkout hx
-        uses: actions/checkout@v4
+      - name: Checkout ${{ env.PROJECT_PATH }}
+        uses: actions/checkout@v6
         with:
-          repository: helix-editor/helix
-          ref: refs/tags/25.07.1
-          path: hx
+          repository: ${{ env.PROJECT_REPOSITORY }}
+          ref: refs/tags/${{ env.PROJECT_VERSION }}
+          path: ${{ env.PROJECT_PATH }}
 
       - name: Copy config file
         shell: bash
+        working-directory: ${{ env.PROJECT_PATH }}
         run: |
-          mkdir -p hx/.cargo
-          cp -f .cargo/config.toml hx/.cargo
+          mkdir -p .cargo
+          cp -f ../.cargo/config.toml .cargo
 
       - name: Build
+        shell: bash
+        working-directory: ${{ env.PROJECT_PATH }}
         run: |
-          cd hx
+          rm -f Cargo.lock
+          cargo update
           cargo b -r
 
       - name: Archive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: hx_${{ matrix.os }}
           path: |
-            hx/target/release/hx
-            hx/target/release/*.so
+            ${{ env.PROJECT_PATH }}/target/release/*.so
+            ${{ env.PROJECT_PATH }}/target/release/*.dll
 
-            hx/target/release/hx.exe
-            hx/target/release/*.dll
+            ${{ env.PROJECT_PATH }}/runtime
 
-            hx/runtime
+            ${{ env.PROJECT_PATH }}/target/release/${{ env.PROJECT_BIN }}
+            ${{ env.PROJECT_PATH }}/target/release/${{ env.PROJECT_BIN }}.exe
