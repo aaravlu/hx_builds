@@ -8,7 +8,7 @@ jobs:
   build:
     env:
       PROJECT_REPOSITORY: helix-editor/helix
-      PROJECT_VERSION: v2.3.2
+      PROJECT_VERSION: 25.07.1
       PROJECT_PATH: helix
       PROJECT_BIN: hx
     strategy:
@@ -69,7 +69,7 @@ jobs:
       - name: Archive
         uses: actions/upload-artifact@v6
         with:
-          name: hx_${{ matrix.os }}
+          name: ${{ env.PROJECT_BIN }}_${{ runner.os }}
           path: |
             ${{ env.PROJECT_PATH }}/target/release/*.so
             ${{ env.PROJECT_PATH }}/target/release/*.dll
