@@ -8,7 +8,7 @@ jobs:
   build:
     env:
       PROJECT_REPOSITORY: helix-editor/helix
-      PROJECT_VERSION: 25.07.1
+      PROJECT_VERSION: master
       PROJECT_PATH: helix
       PROJECT_BIN: hx
     strategy:
